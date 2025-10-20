@@ -122,6 +122,9 @@ namespace StarterAssets
             }
         }
 
+        // VARIABLES EXTRAS EN CLASE
+        public bool crouched = false;
+
 
         private void Awake()
         {
@@ -281,7 +284,7 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            if (Grounded)
+            if (Grounded == true && crouched == false)
             {
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
