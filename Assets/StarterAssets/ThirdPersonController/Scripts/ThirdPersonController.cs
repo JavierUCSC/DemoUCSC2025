@@ -123,7 +123,13 @@ namespace StarterAssets
         }
 
         // VARIABLES EXTRAS EN CLASE
-        public bool crouched = false;
+        [Space]
+        [Header("CUSTOMIZACIONES EN CLASE")]
+        [Tooltip("¿El personaje está agachado?")]
+        public bool estaAgachado = false;
+        public InputActionReference inputAgacharse;
+        public SizePersonaje dePie;
+        public SizePersonaje agachado;
 
 
         private void Awake()
@@ -168,6 +174,37 @@ namespace StarterAssets
         {
             CameraRotation();
         }
+
+        void OnEnable()
+        {
+            inputAgacharse.action.started += Agachar;
+        }
+
+        void OnDisable()
+        {
+            inputAgacharse.action.started -= Agachar;
+        }
+
+        private void Agachar(InputAction.CallbackContext context)
+        {
+            if (Grounded == true)// && _animator.GetBool("FreeFall") == false)
+            {
+                estaAgachado = !estaAgachado;
+                _animator.SetBool("Crouch", estaAgachado);
+                
+                // Se entrega la estructura adecuada
+                // dependiendo del valor de 'estaAgachado'
+                EstablecerSize(estaAgachado == true ? agachado : dePie);
+            }
+        }
+        
+        public void EstablecerSize(SizePersonaje newSize)
+        {
+            _controller.height = newSize.altura;
+            _controller.radius = newSize.ancho;
+            _controller.center = newSize.centro;
+        }
+
 
         private void AssignAnimationIDs()
         {
@@ -284,7 +321,7 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            if (Grounded == true && crouched == false)
+            if (Grounded == true && estaAgachado == false)
             {
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
@@ -390,6 +427,14 @@ namespace StarterAssets
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
+        }
+
+        [System.Serializable]
+        public struct SizePersonaje
+        {
+            public float altura;
+            public float ancho;
+            public Vector3 centro;
         }
     }
 }
