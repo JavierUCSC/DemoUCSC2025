@@ -147,13 +147,20 @@ namespace StarterAssets
         }
 
         public bool estaAtacando;
-        [Range(0f,1f)]
+        public bool armaEnMano = false;
+        public Transform anclaCinto;
+        public Transform anclaMano;
+        public GameObject arma;
+        public float timerArmaEnMano = 2f;
+
+        [Range(0f, 1f)]
         public float pesoLayerAtaque;
         public InputActionReference inputAgacharse;
         public InputActionReference inputEnGuardia;
         public InputActionReference inputAtacar;
         public SizePersonaje dePie;
         public SizePersonaje agachado;
+        public ControladorEquipo controladorEquipo;
         [Space]
         public UnityEvent<bool> eventoEnGuardia;
         public UnityEvent eventoNoEnGuardia;
@@ -201,6 +208,7 @@ namespace StarterAssets
                 MoveARPG();
 
             EstablecerLayerAtaque();
+            CalcularTimerArmaEnMano();
         }
 
         private void LateUpdate()
@@ -215,6 +223,21 @@ namespace StarterAssets
             inputEnGuardia.action.canceled += ResetearEnGuardia;
             inputAtacar.action.started += IniciarAtaque;
             inputAtacar.action.canceled += ReiniciarAtaque;
+        }
+
+        public void CalcularTimerArmaEnMano()
+        {
+            if(armaEnMano == true && estaAtacando == false)
+            {
+                if(timerArmaEnMano >= -1f && timerArmaEnMano <= 2f)
+                    timerArmaEnMano -= Time.deltaTime;
+                else if(timerArmaEnMano < -1f)
+                    timerArmaEnMano = 2f;
+            }
+            else
+                timerArmaEnMano = 2f;
+            
+            _animator.SetFloat("timerArmaEnMano", timerArmaEnMano);
         }
 
         private void ReiniciarAtaque(InputAction.CallbackContext context)
@@ -238,27 +261,80 @@ namespace StarterAssets
             if (estaAtacando == true)
             {
                 if (pesoLayerAtaque < 1f)
-                {
                     pesoLayerAtaque = pesoLayerAtaque + 5 * Time.deltaTime;
-                }
                 else
                     pesoLayerAtaque = 1f;
             }
             else
             {
                 if (pesoLayerAtaque > 0f)
-                {
                     pesoLayerAtaque = pesoLayerAtaque - 10 * Time.deltaTime;
-
-                }
+                else
+                    pesoLayerAtaque = 0f;
             }
-            
-            _animator.SetLayerWeight(1, pesoLayerAtaque);
+
+            // VERIFICAMOS LA VELOCIDAD DEL PLAYER
+            if(_speed > 0)
+            {
+                _animator.SetLayerWeight(1, pesoLayerAtaque);
+                _animator.SetLayerWeight(2, 0f);
+            }
+            else
+            {
+                _animator.SetLayerWeight(1, 0f);
+                _animator.SetLayerWeight(2, pesoLayerAtaque);
+            }
+        }
+
+        public void SacarArma()
+        {
+            arma.transform.parent = anclaMano;
+            arma.transform.localPosition = Vector3.zero;
+            arma.transform.localEulerAngles = Vector3.zero;
+            armaEnMano = true;
+
+            _animator.SetBool("armaEnMano", armaEnMano);
+        }
+
+        public void GuardarArma()
+        {
+            arma.transform.parent = anclaCinto;
+            arma.transform.localPosition = Vector3.zero;
+            arma.transform.localEulerAngles = Vector3.zero;
+
+            armaEnMano = false;
+            _animator.SetBool("armaEnMano", false);
         }
 
         public void Atacar(int ataqueID)
         {
             Debug.Log("ATACANDO!! Clip: " + ataqueID);
+            controladorEquipo.armaActual.GetComponent<Collider>().enabled = true;
+
+            // REALIZAMOS PROCESOS DE ATAQUE
+            // ...
+
+            // controladorEquipo.armaActual.GetComponent<Collider>().enabled = false;
+        }
+
+        public void CalcularAtaque()
+        {
+            if (controladorEquipo.armaActual != null)
+            {
+                if (controladorEquipo.armaActual.objetivoGolpeado != null)
+                {
+                    
+                }
+            }
+        }
+
+        public void SetColisionArma(int estado)
+        {
+            if (controladorEquipo.armaActual != null)
+            {
+                controladorEquipo.armaActual.GetComponent<Collider>().enabled = (estado == 1);
+                Debug.Log("SE " + ((estado == 1) ? "ACTIVO" : "DESACTIVO"));
+            }
         }
 
         private void ResetearEnGuardia(InputAction.CallbackContext context)
