@@ -16,6 +16,10 @@ namespace StarterAssets
 #endif
     public class ThirdPersonControllerARPG : MonoBehaviour
     {
+        /////////////////////////////////////////////////////////
+        
+        #region ATRIBUTOS
+
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
@@ -166,6 +170,11 @@ namespace StarterAssets
         public UnityEvent eventoNoEnGuardia;
         // public UnityEvent eventoEJEMPLO;
 
+        #endregion
+
+        /////////////////////////////////////////////////////////
+        
+        #region CALLBACKS
 
         private void Awake()
         {
@@ -224,6 +233,19 @@ namespace StarterAssets
             inputAtacar.action.started += IniciarAtaque;
             inputAtacar.action.canceled += ReiniciarAtaque;
         }
+
+        void OnDisable()
+        {
+            inputAgacharse.action.started -= Agachar;
+            inputEnGuardia.action.started -= EstablecerEnGuardia;
+            inputEnGuardia.action.canceled -= ResetearEnGuardia;
+        }
+
+        #endregion
+
+        /////////////////////////////////////////////////////////
+        
+        #region METODOS
 
         public void CalcularTimerArmaEnMano()
         {
@@ -351,14 +373,6 @@ namespace StarterAssets
                 estaEnGuardia = true;
                 _animator.SetBool("enGuardia", true);                
             }
-        }
-
-
-        void OnDisable()
-        {
-            inputAgacharse.action.started -= Agachar;
-            inputEnGuardia.action.started -= EstablecerEnGuardia;
-            inputEnGuardia.action.canceled -= ResetearEnGuardia;
         }
 
         private void Agachar(InputAction.CallbackContext context)
@@ -688,6 +702,11 @@ namespace StarterAssets
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
         }
+        #endregion
+
+        /////////////////////////////////////////////////////////
+        
+        #region DEFINICIONES DATOS
 
         [System.Serializable]
         public struct SizePersonaje
@@ -696,5 +715,9 @@ namespace StarterAssets
             public float ancho;
             public Vector3 centro;
         }
+
+        #endregion
+
+        /////////////////////////////////////////////////////////    
     }
 }

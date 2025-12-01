@@ -9,7 +9,9 @@ public class ControladorArma : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag == "Golpeable")
+        string tag = other.gameObject.tag;
+
+        if(tag == "Golpeable" || tag == "Player")
         {
             Debug.Log("GOLPEE ALGO");
             objetivoGolpeado = other.gameObject.GetComponent<ControladorObjetivoGolpeable>();
